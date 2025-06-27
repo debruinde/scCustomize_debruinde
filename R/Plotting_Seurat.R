@@ -577,7 +577,7 @@ FeaturePlot_scCustom_edit <-
                                                                                                             name = all_found_features)) & RestoreLegend() & 
                                                                                                               theme(
                                                                                                                 legend.text = element_text(size = legend.text.size),
-                                                                                                                legend.title = element_text(size = legend.title.size,
+                                                                                                                legend.title = element_text(size = legend.title.size),
                                                                                                                 axis.title.y.right = element_blank())
                                                                                                               )
       }
@@ -591,8 +591,8 @@ FeaturePlot_scCustom_edit <-
                                                                                          name = all_found_features)) & RestoreLegend() & 
                                                                                           theme(
                                                                                             legend.text = element_text(size = legend.text.size),
-                                                                                            legend.title = element_text(size = legend.title.size,
-                                                                                                                        axis.title.y.right = element_blank())
+                                                                                            legend.title = element_text(size = legend.title.size),
+                                                                                            axis.title.y.right = element_blank())
                                                                                           )
       }
       if (isTRUE(x = label_feature_yaxis)) {
@@ -633,8 +633,8 @@ FeaturePlot_scCustom_edit <-
                                                                                       name = all_found_features[i])) & RestoreLegend() & 
                                                                                       theme(
                                                                                         legend.text = element_text(size = legend.text.size),
-                                                                                        legend.title = element_text(size = legend.title.size,
-                                                                                                                    axis.title.y.right = element_blank())
+                                                                                        legend.title = element_text(size = legend.title.size),
+                                                                                        axis.title.y.right = element_blank())
                                                                                       )
                             }
                             else {
@@ -647,8 +647,8 @@ FeaturePlot_scCustom_edit <-
                                                                                                                       name = features[i])) & RestoreLegend() & 
                                                                                                     theme(
                                                                                                       legend.text = element_text(size = legend.text.size),
-                                                                                                      legend.title = element_text(size = legend.title.size,
-                                                                                                                                  axis.title.y.right = element_blank())
+                                                                                                      legend.title = element_text(size = legend.title.size),
+                                                                                                      axis.title.y.right = element_blank())
                                                                                                     )
                             }
                             if (isTRUE(x = label_feature_yaxis)) {
