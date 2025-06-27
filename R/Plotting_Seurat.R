@@ -382,6 +382,8 @@ FeaturePlot_scCustom <- function(
 #' If FALSE, return a list of ggplot objects.
 #' @param legend.title.size Numeric. Size of the legend title text.
 #' @param legend.text.size Numeric. Size of the legend body text.
+#' @param axis.title.x.size Numeric. Size of the x axis titles.
+#' @param axis.title.y.size Numeric. Size of the y axis titles.
 #' @param ... Extra parameters passed to \code{\link[Seurat]{FeaturePlot}}.
 #'
 #' @return A ggplot object
@@ -418,7 +420,9 @@ FeaturePlot_scCustom_edit <-
             alpha_exp = NULL, alpha_na_exp = NULL, label = FALSE, label_feature_yaxis = FALSE, 
             combine = TRUE, 
             legend.text.size = 12,        
-            legend.title.size = 14,       
+            legend.title.size = 14,  
+            axis.title.x.size = 10,
+            axis.title.y.size = 10,
             ...) 
   {
     Is_Seurat(seurat_object = seurat_object)
@@ -509,7 +513,9 @@ FeaturePlot_scCustom_edit <-
                                                                           limits = c(na_cutoff, NA), na.value = na_color)&
                                                             theme(
                                                               legend.text = element_text(size = legend.text.size),
-                                                              legend.title = element_text(size = legend.title.size)
+                                                              legend.title = element_text(size = legend.title.size),
+                                                              axis.title.x = element_text(size = axis.title.x.size),
+                                                              axis.title.y = element_text(size = axis.title.y.size)
                                                             ))
       }
       else {
@@ -522,7 +528,9 @@ FeaturePlot_scCustom_edit <-
                                                                                          NA), na.value = na_color)&
                                                             theme(
                                                               legend.text = element_text(size = legend.text.size),
-                                                              legend.title = element_text(size = legend.title.size)
+                                                              legend.title = element_text(size = legend.title.size),
+                                                              axis.title.x = element_text(size = axis.title.x.size),
+                                                              axis.title.y = element_text(size = axis.title.y.size)
                                                             ))
       }
     }
@@ -552,7 +560,9 @@ FeaturePlot_scCustom_edit <-
                                                   raster.dpi = raster.dpi, label = label, ...)&
                                         theme(
                                           legend.text = element_text(size = legend.text.size),
-                                          legend.title = element_text(size = legend.title.size)
+                                          legend.title = element_text(size = legend.title.size),
+                                          axis.title.x = element_text(size = axis.title.x.size),
+                                          axis.title.y = element_text(size = axis.title.y.size)
                                         ))
         plot <- lapply(1:length(x = plot_list), function(i) {
           plot_list[[i]] <- suppressMessages(plot_list[[i]] + 
@@ -578,6 +588,8 @@ FeaturePlot_scCustom_edit <-
                                                                                                               theme(
                                                                                                                 legend.text = element_text(size = legend.text.size),
                                                                                                                 legend.title = element_text(size = legend.title.size),
+                                                                                                                axis.title.x = element_text(size = axis.title.x.size),
+                                                                                                                axis.title.y = element_text(size = axis.title.y.size),
                                                                                                                 axis.title.y.right = element_blank()))
                                                                                                               
       }
@@ -592,6 +604,8 @@ FeaturePlot_scCustom_edit <-
                                                                                           theme(
                                                                                             legend.text = element_text(size = legend.text.size),
                                                                                             legend.title = element_text(size = legend.title.size),
+                                                                                            axis.title.x = element_text(size = axis.title.x.size),
+                                                                                            axis.title.y = element_text(size = axis.title.y.size),
                                                                                             axis.title.y.right = element_blank()))
                                                                                           
       }
@@ -634,6 +648,8 @@ FeaturePlot_scCustom_edit <-
                                                                                       theme(
                                                                                         legend.text = element_text(size = legend.text.size),
                                                                                         legend.title = element_text(size = legend.title.size),
+                                                                                        axis.title.x = element_text(size = axis.title.x.size),
+                                                                                        axis.title.y = element_text(size = axis.title.y.size),
                                                                                         axis.title.y.right = element_blank()))
                                                                                       
                             }
@@ -648,6 +664,8 @@ FeaturePlot_scCustom_edit <-
                                                                                                     theme(
                                                                                                       legend.text = element_text(size = legend.text.size),
                                                                                                       legend.title = element_text(size = legend.title.size),
+                                                                                                      axis.title.x = element_text(size = axis.title.x.size),
+                                                                                                      axis.title.y = element_text(size = axis.title.y.size)
                                                                                                       axis.title.y.right = element_blank()))
                                                                                                     
                             }
