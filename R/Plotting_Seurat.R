@@ -385,6 +385,8 @@ FeaturePlot_scCustom <- function(
 #' @param legend.text.size Numeric. Size of the legend body text.
 #' @param axis.title.x.size Numeric. Size of the x axis titles.
 #' @param axis.title.y.size Numeric. Size of the y axis titles.
+#' @param set.legend.key.size Numeric. Size of legend key.
+#' @param set.legend.spacing.y Numeric. Set space between legend features.          
 #' @param ... Extra parameters passed to \code{\link[Seurat]{FeaturePlot}}.
 #'
 #' @return A ggplot object
@@ -425,6 +427,8 @@ FeaturePlot_scCustom_edit <-
             legend.title.size = 14,  
             axis.title.x.size = 10,
             axis.title.y.size = 10,
+            set.legend.key.size = 1.5,
+            set.legend.spacing.y = 1.0,
             ...) 
   {
     Is_Seurat(seurat_object = seurat_object)
@@ -518,7 +522,9 @@ FeaturePlot_scCustom_edit <-
                                                               legend.text = element_text(size = legend.text.size),
                                                               legend.title = element_text(size = legend.title.size),
                                                               axis.title.x = element_text(size = axis.title.x.size),
-                                                              axis.title.y = element_text(size = axis.title.y.size)
+                                                              axis.title.y = element_text(size = axis.title.y.size),
+                                                              legend.key.size = unit(set.legend.key.size, "cm"),
+                                                              legend.spacing.y = unit(set.legend.spacing.y, "cm")
                                                             ))
       }
       else {
@@ -534,7 +540,9 @@ FeaturePlot_scCustom_edit <-
                                                               legend.text = element_text(size = legend.text.size),
                                                               legend.title = element_text(size = legend.title.size),
                                                               axis.title.x = element_text(size = axis.title.x.size),
-                                                              axis.title.y = element_text(size = axis.title.y.size)
+                                                              axis.title.y = element_text(size = axis.title.y.size),
+                                                              legend.key.size = unit(set.legend.key.size, "cm"),
+                                                              legend.spacing.y = unit(set.legend.spacing.y, "cm")
                                                             ))
       }
     }
@@ -567,7 +575,9 @@ FeaturePlot_scCustom_edit <-
                                           legend.text = element_text(size = legend.text.size),
                                           legend.title = element_text(size = legend.title.size),
                                           axis.title.x = element_text(size = axis.title.x.size),
-                                          axis.title.y = element_text(size = axis.title.y.size)
+                                          axis.title.y = element_text(size = axis.title.y.size),
+                                          legend.key.size = unit(set.legend.key.size, "cm"),
+                                                              legend.spacing.y = unit(set.legend.spacing.y, "cm")
                                         ))
         plot <- lapply(1:length(x = plot_list), function(i) {
           plot_list[[i]] <- suppressMessages(plot_list[[i]] + 
@@ -596,6 +606,8 @@ FeaturePlot_scCustom_edit <-
                                                                                                                 legend.title = element_text(size = legend.title.size),
                                                                                                                 axis.title.x = element_text(size = axis.title.x.size),
                                                                                                                 axis.title.y = element_text(size = axis.title.y.size),
+                                                                                                                legend.key.size = unit(set.legend.key.size, "cm"),
+                                                                                                                legend.spacing.y = unit(set.legend.spacing.y, "cm"),
                                                                                                                 axis.title.y.right = element_blank()))
                                                                                                               
       }
@@ -613,6 +625,8 @@ FeaturePlot_scCustom_edit <-
                                                                                             legend.title = element_text(size = legend.title.size),
                                                                                             axis.title.x = element_text(size = axis.title.x.size),
                                                                                             axis.title.y = element_text(size = axis.title.y.size),
+                                                                                            legend.key.size = unit(set.legend.key.size, "cm"),
+                                                                                            legend.spacing.y = unit(set.legend.spacing.y, "cm"),
                                                                                             axis.title.y.right = element_blank()))
                                                                                           
       }
@@ -658,6 +672,8 @@ FeaturePlot_scCustom_edit <-
                                                                                         legend.title = element_text(size = legend.title.size),
                                                                                         axis.title.x = element_text(size = axis.title.x.size),
                                                                                         axis.title.y = element_text(size = axis.title.y.size),
+                                                                                        legend.key.size = unit(set.legend.key.size, "cm"),
+                                                                                        legend.spacing.y = unit(set.legend.spacing.y, "cm"),
                                                                                         axis.title.y.right = element_blank()))
                                                                                       
                             }
@@ -675,6 +691,8 @@ FeaturePlot_scCustom_edit <-
                                                                                                       legend.title = element_text(size = legend.title.size),
                                                                                                       axis.title.x = element_text(size = axis.title.x.size),
                                                                                                       axis.title.y = element_text(size = axis.title.y.size),
+                                                                                                      legend.key.size = unit(set.legend.key.size, "cm"),
+                                                                                                      legend.spacing.y = unit(set.legend.spacing.y, "cm"),
                                                                                                       axis.title.y.right = element_blank()))
                                                                                                     
                             }
