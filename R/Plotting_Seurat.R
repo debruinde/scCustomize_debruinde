@@ -1,4 +1,4 @@
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+it#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #################### GENE EXPRESSION PLOTTING (2D) ####################
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -344,283 +344,308 @@ FeaturePlot_scCustom <- function(
 
 
 #Create an custom function that allows users to more effectively adjust text sizes
-FeaturePlot_scCustom <- function(
-  seurat_object,
-  features,
-  colors_use = viridis_plasma_dark_high,
-  na_color = "lightgray",
-  order = TRUE,
-  pt.size = NULL,
-  reduction = NULL,
-  na_cutoff = 0.000000001,
-  raster = NULL,
-  raster.dpi = c(512, 512),
-  split.by = NULL,
-  split_collect = NULL,
-  aspect_ratio = NULL,
-  figure_plot = FALSE,
-  num_columns = NULL,
-  layer = "data",
-  alpha_exp = NULL,
-  alpha_na_exp = NULL,
-  label = FALSE,
-  label_feature_yaxis = FALSE,
-  combine = TRUE,
-  ...
-) {
-  # Check Seurat
-  Is_Seurat(seurat_object = seurat_object)
-
-  # Check meta
-  if (!is.null(x = split.by)) {
-    split.by <- Meta_Present(object = seurat_object, meta_col_names = split.by, print_msg = FALSE, omit_warn = FALSE)[[1]]
-  }
-
-  # Set or check split_collect values
-  if (is.null(x = split_collect)) {
-    if (length(x = features) == 1) {
-      split_collect <- TRUE
-    } else {
-      split_collect <- FALSE
-    }
-  }
-
-  if (!is.null(x = split_collect)) {
-    if (length(x = features) > 1 && isTRUE(x = split_collect)) {
-      cli_abort(message = "{.code split_collect} cannot be set to {.field TRUE} if the number of features is greater than 1.")
-    }
-  }
-
-  # Check features and meta to determine which features present
-  all_found_features <- Feature_PreCheck(object = seurat_object, features = features)
-
-  # Get length of meta data feature
-  if (is.null(x = split.by) && isTRUE(x = label_feature_yaxis)) {
-    cli_abort(message = "Setting {.code label_feature_yaxis = TRUE} is only supported when also setting {.code split.by}.")
-  }
-
-  if (!is.null(x = split.by)) {
-    split.by_length <- length(x = unique(x = seurat_object@meta.data[[split.by]]))
-
-    if (!is.null(x = num_columns) && isTRUE(x = label_feature_yaxis)) {
-
-      cli_warn(message = c("Setting number of columns is not permitted if {.code label_feature_yaxis = TRUE}",
-                           "i" = "Number of columns be automatically set to number of levels in `split.by` ({.field {split.by_length}}).")
-      )
-      num_columns <- split.by_length
-    }
-
-    if (is.null(x = num_columns)) {
-      num_columns <- split.by_length
-    }
-
-    # Calculate number of rows for selected number of columns
-    num_rows <- ceiling(split.by_length/num_columns)
-
-    # Check column and row compatibility
-    if (num_columns > split.by_length) {
-      cli_abort(message = c("The number of columns specified is greater than the number of meta data variables.",
-                        "*" = "{.val {split.by}} only contains {.field {split.by_length}} variables.",
-                        "i" = "Please adjust {.code num_columns} to be less than or equal to {.field {split.by_length}}.")
-      )
-    }
-  }
-
-  if (any(all_found_features %in% colnames(x = seurat_object@meta.data))) {
-    cli_warn(message = c("Some of the plotted features are from meta.data slot.",
-                         "*" = "Please check that {.code na_cutoff} param is being set appropriately for those features.")
-    )
-  }
-
-  # Add raster check for scCustomize
-  raster <- raster %||% (length(x = Cells(x = seurat_object)) > 2e5)
-
-  # Set uniform poist size is pt.size = NULL (based on plot with most cells)
-  if (is.null(x = pt.size)) {
+FeaturePlot_scCustom_edit <-
+  function (seurat_object, features, colors_use = viridis_plasma_dark_high, 
+            na_color = "lightgray", order = TRUE, pt.size = NULL, reduction = NULL, 
+            na_cutoff = 1.0000000000000001e-09, raster = NULL, raster.dpi = c(512, 
+                                                                              512), split.by = NULL, split_collect = NULL, aspect_ratio = NULL, 
+            figure_plot = FALSE, num_columns = NULL, layer = "data", 
+            alpha_exp = NULL, alpha_na_exp = NULL, label = FALSE, label_feature_yaxis = FALSE, 
+            combine = TRUE, 
+            legend.text.size = 12,        
+            legend.title.size = 14,       
+            ...) 
+  {
+    Is_Seurat(seurat_object = seurat_object)
     if (!is.null(x = split.by)) {
-      # cells per meta data
-      cells_by_meta <- data.frame(table(seurat_object@meta.data[, split.by]))
-      # Identity with greatest number of cells
-      max_cells <- max(cells_by_meta$Freq)
-      # modified version of the autopointsize function from Seurat
-      pt.size <- AutoPointSize_scCustom(data = max_cells, raster = raster)
-    } else {
-      # Total cells
-      cells_total <- nrow(x = seurat_object@meta.data)
-      # modified version of the autopointsize function from Seurat
-      pt.size <- AutoPointSize_scCustom(data = cells_total, raster = raster)
+      split.by <- Meta_Present(object = seurat_object, meta_col_names = split.by, 
+                               print_msg = FALSE, omit_warn = FALSE)[[1]]
     }
-  }
-
-  # set na_cutoff if NULL is provided to ensure proper plotting
-  if (is.null(x = na_cutoff)) {
-    na_cutoff <- NA
-  }
-
-  # Extract default reduction
-  reduction <- reduction %||% DefaultDimReduc(object = seurat_object)
-
-  # Get Seurat version
-  seurat_version <- packageVersion("Seurat")
-
-  # Add alpha to color scales
-  if (!is.null(x = alpha_exp) && seurat_version < "5") {
-    colors_use <- alpha(colors_use, alpha_exp)
-  }
-
-  if (!is.null(x = alpha_na_exp) && seurat_version < "5") {
-    na_color <- alpha(na_color, alpha_na_exp)
-  }
-
-  if (!is.null(x = alpha_na_exp) && seurat_version >= "5") {
-    cli_warn(message = "{.code alpha_na_exp} is not currently supported for Seurat v5+")
-  }
-
-  # Set alpha if NULL
-  if (is.null(x = alpha_exp) && seurat_version >= "5") {
-      alpha_exp <- 1
-  }
-
-  # plot no split & combined
-  if (is.null(x = split.by) && isTRUE(x = combine)) {
-    # Keep until Seurat version required is > 5
-    if (seurat_version >= "5") {
-      plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, ncol = num_columns, combine = combine, raster.dpi = raster.dpi, label = label, alpha = alpha_exp, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, NA), na.value = na_color))
-    } else {
-      plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, ncol = num_columns, combine = combine, raster.dpi = raster.dpi, label = label, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, NA), na.value = na_color))
-    }
-  }
-
-  # plot no split & combined
-  if (is.null(x = split.by) && isFALSE(x = combine)) {
-    if (seurat_version >= "5") {
-      plot_list <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, ncol = num_columns, combine = combine, raster.dpi = raster.dpi, label = label, alpha = alpha_exp, ...))
-
-      plot <- lapply(1:length(x = plot_list), function(i) {
-        plot_list[[i]] <- suppressMessages(plot_list[[i]] + scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, NA), na.value = na_color))
-      })
-    } else {
-      plot_list <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, ncol = num_columns, combine = combine, raster.dpi = raster.dpi, label = label, ...))
-
-      plot <- lapply(1:length(x = plot_list), function(i) {
-        plot_list[[i]] <- suppressMessages(plot_list[[i]] + scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, NA), na.value = na_color))
-      })
-    }
-  }
-
-
-  # plotting split with single feature (allows column number setting)
-  if (!is.null(x = split.by) && length(x = all_found_features) == 1) {
-    # Until Seurat is fixed pull feature data to set separately
-    feature_data <- FetchData(
-      object = seurat_object,
-      vars = all_found_features,
-      layer = layer)
-    # Pull min and max values
-    max_exp_value <- max(feature_data)
-    min_exp_value <- min(feature_data)
-
-    if (seurat_version >= "5") {
-      plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, raster.dpi = raster.dpi, label = label, alpha = alpha_exp, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, max_exp_value), na.value = na_color, name = all_found_features)) & RestoreLegend() & theme(axis.title.y.right = element_blank())
-    } else {
-      plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features, order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, raster.dpi = raster.dpi, label = label, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, max_exp_value), na.value = na_color, name = all_found_features)) & RestoreLegend() & theme(axis.title.y.right = element_blank())
-    }
-
-    if (isTRUE(x = label_feature_yaxis)) {
-      plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns)
-      plot <- plot & theme(legend.title=element_blank())
-      plot <- suppressMessages(plot + scale_y_continuous(sec.axis = dup_axis(name = all_found_features))) + No_Right()
-    } else {
-      if (isTRUE(x = split_collect)) {
-        if (hasArg("keep.scale")) {
-          cli_abort(message = "The parameter {.code keep.scale} cannot be set different from default if {.code split_collect - TRUE}.")
-        }
-        plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns, guides = "collect")
-      } else {
-        plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns)
+    if (is.null(x = split_collect)) {
+      if (length(x = features) == 1) {
+        split_collect <- TRUE
+      }
+      else {
+        split_collect <- FALSE
       }
     }
-  }
-
-  # plotting split multiple features
-  if (!is.null(x = split.by) && length(x = all_found_features) > 1) {
-
-    plot_list <- lapply(1:length(x = all_found_features), function(i){
-      feature_data <- FetchData(
-        object = seurat_object,
-        vars = all_found_features[i],
-        layer = layer)
-      # Pull min and max values
+    if (!is.null(x = split_collect)) {
+      if (length(x = features) > 1 && isTRUE(x = split_collect)) {
+        cli_abort(message = "{.code split_collect} cannot be set to {.field TRUE} if the number of features is greater than 1.")
+      }
+    }
+    all_found_features <- Feature_PreCheck(object = seurat_object, 
+                                           features = features)
+    if (is.null(x = split.by) && isTRUE(x = label_feature_yaxis)) {
+      cli_abort(message = "Setting {.code label_feature_yaxis = TRUE} is only supported when also setting {.code split.by}.")
+    }
+    if (!is.null(x = split.by)) {
+      split.by_length <- length(x = unique(x = seurat_object@meta.data[[split.by]]))
+      if (!is.null(x = num_columns) && isTRUE(x = label_feature_yaxis)) {
+        cli_warn(message = c("Setting number of columns is not permitted if {.code label_feature_yaxis = TRUE}", 
+                             i = "Number of columns be automatically set to number of levels in `split.by` ({.field {split.by_length}})."))
+        num_columns <- split.by_length
+      }
+      if (is.null(x = num_columns)) {
+        num_columns <- split.by_length
+      }
+      num_rows <- ceiling(split.by_length/num_columns)
+      if (num_columns > split.by_length) {
+        cli_abort(message = c("The number of columns specified is greater than the number of meta data variables.", 
+                              `*` = "{.val {split.by}} only contains {.field {split.by_length}} variables.", 
+                              i = "Please adjust {.code num_columns} to be less than or equal to {.field {split.by_length}}."))
+      }
+    }
+    if (any(all_found_features %in% colnames(x = seurat_object@meta.data))) {
+      cli_warn(message = c("Some of the plotted features are from meta.data slot.", 
+                           `*` = "Please check that {.code na_cutoff} param is being set appropriately for those features."))
+    }
+    raster <- raster %||% (length(x = Cells(x = seurat_object)) > 
+                             200000)
+    if (is.null(x = pt.size)) {
+      if (!is.null(x = split.by)) {
+        cells_by_meta <- data.frame(table(seurat_object@meta.data[, 
+                                                                  split.by]))
+        max_cells <- max(cells_by_meta$Freq)
+        pt.size <- AutoPointSize_scCustom(data = max_cells, 
+                                          raster = raster)
+      }
+      else {
+        cells_total <- nrow(x = seurat_object@meta.data)
+        pt.size <- AutoPointSize_scCustom(data = cells_total, 
+                                          raster = raster)
+      }
+    }
+    if (is.null(x = na_cutoff)) {
+      na_cutoff <- NA
+    }
+    reduction <- reduction %||% DefaultDimReduc(object = seurat_object)
+    seurat_version <- packageVersion("Seurat")
+    if (!is.null(x = alpha_exp) && seurat_version < "5") {
+      colors_use <- alpha(colors_use, alpha_exp)
+    }
+    if (!is.null(x = alpha_na_exp) && seurat_version < "5") {
+      na_color <- alpha(na_color, alpha_na_exp)
+    }
+    if (!is.null(x = alpha_na_exp) && seurat_version >= "5") {
+      cli_warn(message = "{.code alpha_na_exp} is not currently supported for Seurat v5+")
+    }
+    if (is.null(x = alpha_exp) && seurat_version >= "5") {
+      alpha_exp <- 1
+    }
+    if (is.null(x = split.by) && isTRUE(x = combine)) {
+      if (seurat_version >= "5") {
+        plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                             features = all_found_features, order = order, 
+                                             pt.size = pt.size, reduction = reduction, raster = raster, 
+                                             split.by = split.by, ncol = num_columns, combine = combine, 
+                                             raster.dpi = raster.dpi, label = label, alpha = alpha_exp, 
+                                             ...) & scale_color_gradientn(colors = colors_use, 
+                                                                          limits = c(na_cutoff, NA), na.value = na_color)&
+                                                            theme(
+                                                              legend.text = element_text(size = legend.text.size),
+                                                              legend.title = element_text(size = legend.title.size)
+                                                            ))
+      }
+      else {
+        plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                             features = all_found_features, order = order, 
+                                             pt.size = pt.size, reduction = reduction, raster = raster, 
+                                             split.by = split.by, ncol = num_columns, combine = combine, 
+                                             raster.dpi = raster.dpi, label = label, ...) & 
+                                   scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, 
+                                                                                         NA), na.value = na_color)&
+                                                            theme(
+                                                              legend.text = element_text(size = legend.text.size),
+                                                              legend.title = element_text(size = legend.title.size)
+                                                            ))
+      }
+    }
+    if (is.null(x = split.by) && isFALSE(x = combine)) {
+      if (seurat_version >= "5") {
+        plot_list <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                                  features = all_found_features, order = order, 
+                                                  pt.size = pt.size, reduction = reduction, raster = raster, 
+                                                  split.by = split.by, ncol = num_columns, combine = combine, 
+                                                  raster.dpi = raster.dpi, label = label, alpha = alpha_exp, 
+                                                  ...) &
+                                        theme(
+                                          legend.text = element_text(size = legend.text.size),
+                                          legend.title = element_text(size = legend.title.size)
+                                        ))
+        plot <- lapply(1:length(x = plot_list), function(i) {
+          plot_list[[i]] <- suppressMessages(plot_list[[i]] + 
+                                               scale_color_gradientn(colors = colors_use, 
+                                                                     limits = c(na_cutoff, NA), na.value = na_color))
+        })
+      }
+      else {
+        plot_list <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                                  features = all_found_features, order = order, 
+                                                  pt.size = pt.size, reduction = reduction, raster = raster, 
+                                                  split.by = split.by, ncol = num_columns, combine = combine, 
+                                                  raster.dpi = raster.dpi, label = label, ...)&
+                                        theme(
+                                          legend.text = element_text(size = legend.text.size),
+                                          legend.title = element_text(size = legend.title.size)
+                                        ))
+        plot <- lapply(1:length(x = plot_list), function(i) {
+          plot_list[[i]] <- suppressMessages(plot_list[[i]] + 
+                                               scale_color_gradientn(colors = colors_use, 
+                                                                     limits = c(na_cutoff, NA), na.value = na_color))
+        })
+      }
+    }
+    if (!is.null(x = split.by) && length(x = all_found_features) == 
+        1) {
+      feature_data <- FetchData(object = seurat_object, vars = all_found_features, 
+                                layer = layer)
       max_exp_value <- max(feature_data)
       min_exp_value <- min(feature_data)
-
-
       if (seurat_version >= "5") {
-        single_plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features[i], order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, raster.dpi = raster.dpi, label = label, alpha = alpha_exp, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, max_exp_value), na.value = na_color, name = all_found_features[i])) & RestoreLegend() & theme(axis.title.y.right = element_blank())
-      } else {
-        single_plot <- suppressMessages(FeaturePlot(object = seurat_object, features = all_found_features[i], order = order, pt.size = pt.size, reduction = reduction, raster = raster, split.by = split.by, raster.dpi = raster.dpi, label = label, ...) & scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, max_exp_value), na.value = na_color, name = features[i])) & RestoreLegend() & theme(axis.title.y.right = element_blank())
+        plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                             features = all_found_features, order = order, 
+                                             pt.size = pt.size, reduction = reduction, raster = raster, 
+                                             split.by = split.by, raster.dpi = raster.dpi, 
+                                             label = label, alpha = alpha_exp, ...) & scale_color_gradientn(colors = colors_use, 
+                                                                                                            limits = c(na_cutoff, max_exp_value), na.value = na_color, 
+                                                                                                            name = all_found_features)) & RestoreLegend() & 
+                                                                                                              theme(
+                                                                                                                legend.text = element_text(size = legend.text.size),
+                                                                                                                legend.title = element_text(size = legend.title.size,
+                                                                                                                axis.title.y.right = element_blank())
+                                                                                                              )
       }
-
+      else {
+        plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                             features = all_found_features, order = order, 
+                                             pt.size = pt.size, reduction = reduction, raster = raster, 
+                                             split.by = split.by, raster.dpi = raster.dpi, 
+                                             label = label, ...) & scale_color_gradientn(colors = colors_use, 
+                                                                                         limits = c(na_cutoff, max_exp_value), na.value = na_color, 
+                                                                                         name = all_found_features)) & RestoreLegend() & 
+                                                                                          theme(
+                                                                                            legend.text = element_text(size = legend.text.size),
+                                                                                            legend.title = element_text(size = legend.title.size,
+                                                                                                                        axis.title.y.right = element_blank())
+                                                                                          )
+      }
       if (isTRUE(x = label_feature_yaxis)) {
-        single_plot <- single_plot + plot_layout(nrow = num_rows, ncol = num_columns)
-        single_plot <- single_plot & theme(legend.title=element_blank())
-        single_plot <- suppressMessages(single_plot + scale_y_continuous(sec.axis = dup_axis(name = all_found_features[i]))) + No_Right()
-      } else {
-        single_plot <- single_plot + plot_layout(nrow = num_rows, ncol = num_columns)
+        plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns)
+        plot <- plot & theme(legend.title = element_blank())
+        plot <- suppressMessages(plot + scale_y_continuous(sec.axis = dup_axis(name = all_found_features))) + 
+          No_Right()
       }
-    })
-    plot <- wrap_plots(plot_list) + plot_layout(ncol = 1)
-  }
-
-  # Add one time na_cutoff warning
-  if (getOption(x = 'scCustomize_warn_na_cutoff', default = TRUE) && !is.na(x = na_cutoff) && na_cutoff == 0.000000001) {
-    cli_inform(message = c("",
-                           "NOTE: {.field FeaturePlot_scCustom} uses a specified {.code na_cutoff} when plotting to",
-                           "color cells with no expression as background color separate from color scale.",
-                           "Please ensure {.code na_cutoff} value is appropriate for feature being plotted.",
-                           "Default setting is appropriate for use when plotting from 'RNA' assay.\n",
-                           "When {.code na_cutoff} not appropriate (e.g., module scores) set to NULL to \n",
-                           "plot all cells in gradient color palette.",
-                           "",
-                           "-----This message will be shown once per session.-----"))
-    options(scCustomize_warn_na_cutoff = FALSE)
-  }
-
-  if (getOption(x = 'scCustomize_warn_zero_na_cutoff', default = TRUE) && !is.na(x = na_cutoff) && na_cutoff == 0) {
-    cli_inform(message = c("",
-                           "NOTE: Specified {.code na_cutoff} is set to {.field zero (0)}. This means that only cells/nuclei",
-                           "with expression less than zero will be plotted with {.code na_color}: {.val {na_color}}.",
-                           "To plot cells with expression values of zero using {.code na_color} leave",
-                           "default {.code na_cutoff} value. If you want to plot full spectrum without",
-                           "{.code na_cutoff} (e.g., for module scores) then set {.code na_cutoff = NULL`}.",
-                           "",
-                           "-----This message will be shown once per session.-----"))
-    options(scCustomize_warn_na_cutoff = FALSE)
-  }
-
-  # Aspect ratio changes
-  if (!is.null(x = aspect_ratio)) {
-    if (!is.numeric(x = aspect_ratio)) {
-      cli_abort(message = "{.code aspect_ratio} must be a {.field numeric} value.")
+      else {
+        if (isTRUE(x = split_collect)) {
+          if (hasArg("keep.scale")) {
+            cli_abort(message = "The parameter {.code keep.scale} cannot be set different from default if {.code split_collect - TRUE}.")
+          }
+          plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns, 
+                                     guides = "collect")
+        }
+        else {
+          plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns)
+        }
+      }
     }
-    plot <- plot & theme(aspect.ratio = aspect_ratio)
-  }
-
-  # Figure plot
-  if (isTRUE(x = figure_plot)) {
-    if (length(x = all_found_features) == 1) {
-      plot <- Figure_Plot(plot = plot)
-    } else {
-      plot_list <- lapply(1:length(x = all_found_features), function(j) {
-        fig_plot <- Figure_Plot(plot = plot[[j]])
-      })
-
-      plot <- wrap_plots(plot_list, ncol = num_columns)
+    if (!is.null(x = split.by) && length(x = all_found_features) > 
+        1) {
+      plot_list <- lapply(1:length(x = all_found_features), 
+                          function(i) {
+                            feature_data <- FetchData(object = seurat_object, 
+                                                      vars = all_found_features[i], layer = layer)
+                            max_exp_value <- max(feature_data)
+                            min_exp_value <- min(feature_data)
+                            if (seurat_version >= "5") {
+                              single_plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                                                          features = all_found_features[i], order = order, 
+                                                                          pt.size = pt.size, reduction = reduction, 
+                                                                          raster = raster, split.by = split.by, raster.dpi = raster.dpi, 
+                                                                          label = label, alpha = alpha_exp, ...) & 
+                                                                scale_color_gradientn(colors = colors_use, 
+                                                                                      limits = c(na_cutoff, max_exp_value), na.value = na_color, 
+                                                                                      name = all_found_features[i])) & RestoreLegend() & 
+                                                                                      theme(
+                                                                                        legend.text = element_text(size = legend.text.size),
+                                                                                        legend.title = element_text(size = legend.title.size,
+                                                                                                                    axis.title.y.right = element_blank())
+                                                                                      )
+                            }
+                            else {
+                              single_plot <- suppressMessages(FeaturePlot(object = seurat_object, 
+                                                                          features = all_found_features[i], order = order, 
+                                                                          pt.size = pt.size, reduction = reduction, 
+                                                                          raster = raster, split.by = split.by, raster.dpi = raster.dpi, 
+                                                                          label = label, ...) & scale_color_gradientn(colors = colors_use, 
+                                                                                                                      limits = c(na_cutoff, max_exp_value), na.value = na_color, 
+                                                                                                                      name = features[i])) & RestoreLegend() & 
+                                                                                                    theme(
+                                                                                                      legend.text = element_text(size = legend.text.size),
+                                                                                                      legend.title = element_text(size = legend.title.size,
+                                                                                                                                  axis.title.y.right = element_blank())
+                                                                                                    )
+                            }
+                            if (isTRUE(x = label_feature_yaxis)) {
+                              single_plot <- single_plot + plot_layout(nrow = num_rows, 
+                                                                       ncol = num_columns)
+                              single_plot <- single_plot & theme(legend.title = element_blank())
+                              single_plot <- suppressMessages(single_plot + 
+                                                                scale_y_continuous(sec.axis = dup_axis(name = all_found_features[i]))) + 
+                                No_Right()
+                            }
+                            else {
+                              single_plot <- single_plot + plot_layout(nrow = num_rows, 
+                                                                       ncol = num_columns)
+                            }
+                          })
+      plot <- wrap_plots(plot_list) + plot_layout(ncol = 1)
     }
+    if (getOption(x = "scCustomize_warn_na_cutoff", default = TRUE) && 
+        !is.na(x = na_cutoff) && na_cutoff == 1.0000000000000001e-09) {
+      cli_inform(message = c("", "NOTE: {.field FeaturePlot_scCustom} uses a specified {.code na_cutoff} when plotting to", 
+                             "color cells with no expression as background color separate from color scale.", 
+                             "Please ensure {.code na_cutoff} value is appropriate for feature being plotted.", 
+                             "Default setting is appropriate for use when plotting from 'RNA' assay.\n", 
+                             "When {.code na_cutoff} not appropriate (e.g., module scores) set to NULL to \n", 
+                             "plot all cells in gradient color palette.", "", 
+                             "-----This message will be shown once per session.-----"))
+      options(scCustomize_warn_na_cutoff = FALSE)
+    }
+    if (getOption(x = "scCustomize_warn_zero_na_cutoff", default = TRUE) && 
+        !is.na(x = na_cutoff) && na_cutoff == 0) {
+      cli_inform(message = c("", "NOTE: Specified {.code na_cutoff} is set to {.field zero (0)}. This means that only cells/nuclei", 
+                             "with expression less than zero will be plotted with {.code na_color}: {.val {na_color}}.", 
+                             "To plot cells with expression values of zero using {.code na_color} leave", 
+                             "default {.code na_cutoff} value. If you want to plot full spectrum without", 
+                             "{.code na_cutoff} (e.g., for module scores) then set {.code na_cutoff = NULL`}.", 
+                             "", "-----This message will be shown once per session.-----"))
+      options(scCustomize_warn_na_cutoff = FALSE)
+    }
+    if (!is.null(x = aspect_ratio)) {
+      if (!is.numeric(x = aspect_ratio)) {
+        cli_abort(message = "{.code aspect_ratio} must be a {.field numeric} value.")
+      }
+      plot <- plot & theme(aspect.ratio = aspect_ratio)
+    }
+    if (isTRUE(x = figure_plot)) {
+      if (length(x = all_found_features) == 1) {
+        plot <- Figure_Plot(plot = plot)
+      }
+      else {
+        plot_list <- lapply(1:length(x = all_found_features), 
+                            function(j) {
+                              fig_plot <- Figure_Plot(plot = plot[[j]])
+                            })
+        plot <- wrap_plots(plot_list, ncol = num_columns)
+      }
+    }
+    return(plot)
   }
 
-  return(plot)
-}
+
+
+
 
 
 
