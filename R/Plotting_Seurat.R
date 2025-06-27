@@ -343,6 +343,71 @@ FeaturePlot_scCustom <- function(
 
 
 
+#' Customize FeaturePlot Edited
+#'
+#' Create Custom FeaturePlots and preserve scale (no binning)
+#'
+#' @param seurat_object Seurat object name.
+#' @param features Feature(s) to plot.
+#' @param colors_use list of colors or color palette to use.
+#' @param na_color color to use for points below lower limit.
+#' @param order whether to move positive cells to the top (default = TRUE).
+#' @param pt.size Adjust point size for plotting.
+#' @param reduction Dimensionality Reduction to use (if NULL then defaults to Object default).
+#' @param na_cutoff Value to use as minimum expression cutoff.  This will be lowest value plotted use
+#' palette provided to `colors_use`.  Leave as default value to plot only positive non-zero values using
+#' color scale and zero/negative values as NA.  To plot all values using color palette set to `NA`.
+#' @param raster Convert points to raster format.  Default is NULL which will rasterize by default if
+#' greater than 200,000 cells.
+#' @param raster.dpi Pixel resolution for rasterized plots, passed to geom_scattermore().
+#' Default is c(512, 512).
+#' @param split.by Variable in `@meta.data` to split the plot by.
+#' @param split_collect logical, whether to collect the legends/guides when plotting with `split.by`.
+#' Default is TRUE if one value is provided to `features` otherwise is set to FALSE.
+#' @param aspect_ratio Control the aspect ratio (y:x axes ratio length).  Must be numeric value;
+#' Default is NULL.
+#' @param figure_plot logical.  Whether to remove the axes and plot with legend on left of plot denoting
+#' axes labels.  (Default is FALSE).  Requires `split_seurat = TRUE`.
+#' @param num_columns Number of columns in plot layout.
+#' @param layer Which layer to pull expression data from?  Default is "data".
+#' @param alpha_exp new alpha level to apply to expressing cell color palette (`colors_use`).  Must be
+#' value between 0-1.
+#' @param alpha_na_exp new alpha level to apply to non-expressing cell color palette (`na_color`).  Must be
+#' value between 0-1.
+#' @param label logical, whether to label the clusters.  Default is FALSE.
+#' @param label_feature_yaxis logical, whether to place feature labels on secondary y-axis as opposed to
+#' above legend key.  Default is FALSE.  When setting `label_feature_yaxis = TRUE` the number of columns
+#' in plot output will automatically be set to the number of levels in `split.by'`
+#' @param combine Combine plots into a single \code{\link[patchwork]{patchwork}ed} ggplot object.
+#' If FALSE, return a list of ggplot objects.
+#' @param legend.title.size Numeric. Size of the legend title text.
+#' @param legend.text.size Numeric. Size of the legend body text.
+#' @param ... Extra parameters passed to \code{\link[Seurat]{FeaturePlot}}.
+#'
+#' @return A ggplot object
+#'
+#' @import cli
+#' @import ggplot2
+#' @import patchwork
+#' @importFrom methods hasArg
+#' @importFrom scales alpha
+#' @importFrom Seurat FeaturePlot
+#' @importFrom SeuratObject DefaultDimReduc
+#'
+#' @export
+#'
+#' @concept seurat_plotting
+#'
+#' @examples
+#' library(Seurat)
+#' FeaturePlot_scCustom(seurat_object = pbmc_small, features = "CD3E",
+#' colors_use = viridis_plasma_dark_high, na_color = "lightgray")
+#'
+
+
+
+
+
 #Create an custom function that allows users to more effectively adjust text sizes
 FeaturePlot_scCustom_edit <-
   function (seurat_object, features, colors_use = viridis_plasma_dark_high, 
