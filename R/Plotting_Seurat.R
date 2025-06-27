@@ -574,12 +574,12 @@ FeaturePlot_scCustom_edit <-
                                              split.by = split.by, raster.dpi = raster.dpi, 
                                              label = label, alpha = alpha_exp, ...) & scale_color_gradientn(colors = colors_use, 
                                                                                                             limits = c(na_cutoff, max_exp_value), na.value = na_color, 
-                                                                                                            name = all_found_features)) & RestoreLegend() & 
+                                                                                                            name = all_found_features) & RestoreLegend() & 
                                                                                                               theme(
                                                                                                                 legend.text = element_text(size = legend.text.size),
                                                                                                                 legend.title = element_text(size = legend.title.size),
-                                                                                                                axis.title.y.right = element_blank())
-                                                                                                              )
+                                                                                                                axis.title.y.right = element_blank()))
+                                                                                                              
       }
       else {
         plot <- suppressMessages(FeaturePlot(object = seurat_object, 
@@ -588,12 +588,12 @@ FeaturePlot_scCustom_edit <-
                                              split.by = split.by, raster.dpi = raster.dpi, 
                                              label = label, ...) & scale_color_gradientn(colors = colors_use, 
                                                                                          limits = c(na_cutoff, max_exp_value), na.value = na_color, 
-                                                                                         name = all_found_features)) & RestoreLegend() & 
+                                                                                         name = all_found_features) & RestoreLegend() & 
                                                                                           theme(
                                                                                             legend.text = element_text(size = legend.text.size),
                                                                                             legend.title = element_text(size = legend.title.size),
-                                                                                            axis.title.y.right = element_blank())
-                                                                                          )
+                                                                                            axis.title.y.right = element_blank()))
+                                                                                          
       }
       if (isTRUE(x = label_feature_yaxis)) {
         plot <- plot + plot_layout(nrow = num_rows, ncol = num_columns)
@@ -630,12 +630,12 @@ FeaturePlot_scCustom_edit <-
                                                                           label = label, alpha = alpha_exp, ...) & 
                                                                 scale_color_gradientn(colors = colors_use, 
                                                                                       limits = c(na_cutoff, max_exp_value), na.value = na_color, 
-                                                                                      name = all_found_features[i])) & RestoreLegend() & 
+                                                                                      name = all_found_features[i]) & RestoreLegend() & 
                                                                                       theme(
                                                                                         legend.text = element_text(size = legend.text.size),
                                                                                         legend.title = element_text(size = legend.title.size),
-                                                                                        axis.title.y.right = element_blank())
-                                                                                      )
+                                                                                        axis.title.y.right = element_blank()))
+                                                                                      
                             }
                             else {
                               single_plot <- suppressMessages(FeaturePlot(object = seurat_object, 
@@ -644,12 +644,12 @@ FeaturePlot_scCustom_edit <-
                                                                           raster = raster, split.by = split.by, raster.dpi = raster.dpi, 
                                                                           label = label, ...) & scale_color_gradientn(colors = colors_use, 
                                                                                                                       limits = c(na_cutoff, max_exp_value), na.value = na_color, 
-                                                                                                                      name = features[i])) & RestoreLegend() & 
+                                                                                                                      name = features[i]) & RestoreLegend() & 
                                                                                                     theme(
                                                                                                       legend.text = element_text(size = legend.text.size),
                                                                                                       legend.title = element_text(size = legend.title.size),
-                                                                                                      axis.title.y.right = element_blank())
-                                                                                                    )
+                                                                                                      axis.title.y.right = element_blank()))
+                                                                                                    
                             }
                             if (isTRUE(x = label_feature_yaxis)) {
                               single_plot <- single_plot + plot_layout(nrow = num_rows, 
