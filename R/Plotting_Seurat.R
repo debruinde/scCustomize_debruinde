@@ -665,7 +665,7 @@ FeaturePlot_scCustom_edit <-
                                                                                                       legend.text = element_text(size = legend.text.size),
                                                                                                       legend.title = element_text(size = legend.title.size),
                                                                                                       axis.title.x = element_text(size = axis.title.x.size),
-                                                                                                      axis.title.y = element_text(size = axis.title.y.size)
+                                                                                                      axis.title.y = element_text(size = axis.title.y.size),
                                                                                                       axis.title.y.right = element_blank()))
                                                                                                     
                             }
