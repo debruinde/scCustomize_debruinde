@@ -380,6 +380,7 @@ FeaturePlot_scCustom <- function(
 #' in plot output will automatically be set to the number of levels in `split.by'`
 #' @param combine Combine plots into a single \code{\link[patchwork]{patchwork}ed} ggplot object.
 #' If FALSE, return a list of ggplot objects.
+#' @param plot.title.size Numeric. Size of the plot titles.
 #' @param legend.title.size Numeric. Size of the legend title text.
 #' @param legend.text.size Numeric. Size of the legend body text.
 #' @param axis.title.x.size Numeric. Size of the x axis titles.
@@ -419,6 +420,7 @@ FeaturePlot_scCustom_edit <-
             figure_plot = FALSE, num_columns = NULL, layer = "data", 
             alpha_exp = NULL, alpha_na_exp = NULL, label = FALSE, label_feature_yaxis = FALSE, 
             combine = TRUE, 
+            plot.title.size = 16,
             legend.text.size = 12,        
             legend.title.size = 14,  
             axis.title.x.size = 10,
@@ -512,6 +514,7 @@ FeaturePlot_scCustom_edit <-
                                              ...) & scale_color_gradientn(colors = colors_use, 
                                                                           limits = c(na_cutoff, NA), na.value = na_color)&
                                                             theme(
+                                                              plot.title = element_text(size = plot.title.size),
                                                               legend.text = element_text(size = legend.text.size),
                                                               legend.title = element_text(size = legend.title.size),
                                                               axis.title.x = element_text(size = axis.title.x.size),
@@ -527,6 +530,7 @@ FeaturePlot_scCustom_edit <-
                                    scale_color_gradientn(colors = colors_use, limits = c(na_cutoff, 
                                                                                          NA), na.value = na_color)&
                                                             theme(
+                                                              plot.title = element_text(size = plot.title.size),
                                                               legend.text = element_text(size = legend.text.size),
                                                               legend.title = element_text(size = legend.title.size),
                                                               axis.title.x = element_text(size = axis.title.x.size),
@@ -559,6 +563,7 @@ FeaturePlot_scCustom_edit <-
                                                   split.by = split.by, ncol = num_columns, combine = combine, 
                                                   raster.dpi = raster.dpi, label = label, ...)&
                                         theme(
+                                          plot.title = element_text(size = plot.title.size),
                                           legend.text = element_text(size = legend.text.size),
                                           legend.title = element_text(size = legend.title.size),
                                           axis.title.x = element_text(size = axis.title.x.size),
@@ -586,6 +591,7 @@ FeaturePlot_scCustom_edit <-
                                                                                                             limits = c(na_cutoff, max_exp_value), na.value = na_color, 
                                                                                                             name = all_found_features) & RestoreLegend() & 
                                                                                                               theme(
+                                                                                                                plot.title = element_text(size = plot.title.size),
                                                                                                                 legend.text = element_text(size = legend.text.size),
                                                                                                                 legend.title = element_text(size = legend.title.size),
                                                                                                                 axis.title.x = element_text(size = axis.title.x.size),
@@ -602,6 +608,7 @@ FeaturePlot_scCustom_edit <-
                                                                                          limits = c(na_cutoff, max_exp_value), na.value = na_color, 
                                                                                          name = all_found_features) & RestoreLegend() & 
                                                                                           theme(
+                                                                                            plot.title = element_text(size = plot.title.size),
                                                                                             legend.text = element_text(size = legend.text.size),
                                                                                             legend.title = element_text(size = legend.title.size),
                                                                                             axis.title.x = element_text(size = axis.title.x.size),
@@ -646,6 +653,7 @@ FeaturePlot_scCustom_edit <-
                                                                                       limits = c(na_cutoff, max_exp_value), na.value = na_color, 
                                                                                       name = all_found_features[i]) & RestoreLegend() & 
                                                                                       theme(
+                                                                                        plot.title = element_text(size = plot.title.size),
                                                                                         legend.text = element_text(size = legend.text.size),
                                                                                         legend.title = element_text(size = legend.title.size),
                                                                                         axis.title.x = element_text(size = axis.title.x.size),
@@ -662,6 +670,7 @@ FeaturePlot_scCustom_edit <-
                                                                                                                       limits = c(na_cutoff, max_exp_value), na.value = na_color, 
                                                                                                                       name = features[i]) & RestoreLegend() & 
                                                                                                     theme(
+                                                                                                      plot.title = element_text(size = plot.title.size),
                                                                                                       legend.text = element_text(size = legend.text.size),
                                                                                                       legend.title = element_text(size = legend.title.size),
                                                                                                       axis.title.x = element_text(size = axis.title.x.size),
