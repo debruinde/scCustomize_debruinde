@@ -400,7 +400,7 @@ FeaturePlot_scCustom <- function(
 #'
 #' @examples
 #' library(Seurat)
-#' FeaturePlot_scCustom(seurat_object = pbmc_small, features = "CD3E",
+#' FeaturePlot_scCustom_edit(seurat_object = pbmc_small, features = "CD3E",
 #' colors_use = viridis_plasma_dark_high, na_color = "lightgray")
 #'
 
